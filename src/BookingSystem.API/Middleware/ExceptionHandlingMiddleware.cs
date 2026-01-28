@@ -35,6 +35,10 @@ public class ExceptionHandlingMiddleware
 
         switch (exception)
         {
+            case UnauthorizedAccessException unauthorizedException:
+                code = HttpStatusCode.Unauthorized;
+                result = JsonSerializer.Serialize(new { error = unauthorizedException.Message });
+                break;
             case NotFoundException notFoundException:
                 code = HttpStatusCode.NotFound;
                 result = JsonSerializer.Serialize(new { error = notFoundException.Message });
