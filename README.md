@@ -261,6 +261,7 @@ dotnet test
 
 - **Database Design**: See `DATABASE_DESIGN.md` for complete ERD
 - **Technology Stack**: See `TECHNOLOGY_REQUIREMENTS_VERIFICATION.md` for detailed technology verification
+- **Test Procedures**: See `TEST_PROCEDURE.md` for comprehensive testing guide
 - **API Documentation**: Available at `/swagger` endpoint
 
 ## 🔄 Mock Services
