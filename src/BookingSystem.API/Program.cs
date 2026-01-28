@@ -46,10 +46,25 @@ if (app.Environment.IsDevelopment())
     using (var scope = app.Services.CreateScope())
     {
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        context.Database.EnsureCreated();
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
         
-        // Seed initial data if needed
-        await DataSeeder.SeedInitialDataAsync(context);
+        try
+        {
+            // Ensure database and tables are created
+            var created = await context.Database.EnsureCreatedAsync();
+            if (created)
+            {
+                logger.LogInformation("Database created successfully.");
+            }
+            
+            // Seed initial data if needed
+            await DataSeeder.SeedInitialDataAsync(context);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error initializing database. Please check your connection string and ensure SQL Server is running.");
+            // Don't throw - let the app start and show the error in logs
+        }
     }
 }
 
