@@ -20,37 +20,6 @@ public class UserService : IUserService
         return user == null ? null : MapToDto(user);
     }
 
-    public async Task<UserDto?> GetByEmailAsync(string email)
-    {
-        var user = await _userRepository.GetByEmailAsync(email);
-        return user == null ? null : MapToDto(user);
-    }
-
-    public async Task<IEnumerable<UserDto>> GetAllAsync()
-    {
-        var users = await _userRepository.GetAllAsync();
-        return users.Select(MapToDto);
-    }
-
-    public async Task<UserDto> CreateAsync(CreateUserDto createUserDto)
-    {
-        // Check if email already exists
-        var existingUser = await _userRepository.GetByEmailAsync(createUserDto.Email);
-        if (existingUser != null)
-            throw new InvalidOperationException($"User with email {createUserDto.Email} already exists");
-
-        var user = new User
-        {
-            FirstName = createUserDto.FirstName,
-            LastName = createUserDto.LastName,
-            Email = createUserDto.Email,
-            PhoneNumber = createUserDto.PhoneNumber
-        };
-
-        var createdUser = await _userRepository.AddAsync(user);
-        return MapToDto(createdUser);
-    }
-
     public async Task<UserDto> UpdateAsync(Guid id, CreateUserDto updateUserDto)
     {
         var user = await _userRepository.GetByIdAsync(id);
@@ -72,11 +41,6 @@ public class UserService : IUserService
 
         await _userRepository.UpdateAsync(user);
         return MapToDto(user);
-    }
-
-    public async Task DeleteAsync(Guid id)
-    {
-        await _userRepository.DeleteAsync(id);
     }
 
     private static UserDto MapToDto(User user)
