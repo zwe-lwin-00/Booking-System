@@ -22,6 +22,13 @@ public class RoomsController : ControllerBase
         return Ok(rooms);
     }
 
+    [HttpGet("search")]
+    public async Task<ActionResult<PagedResultDto<RoomDto>>> Search([FromQuery] RoomQueryDto query)
+    {
+        var result = await _roomService.GetPagedAsync(query);
+        return Ok(result);
+    }
+
     [HttpGet("{id}")]
     public async Task<ActionResult<RoomDto>> GetById(Guid id)
     {

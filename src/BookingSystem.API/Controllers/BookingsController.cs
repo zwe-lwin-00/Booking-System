@@ -4,6 +4,7 @@ using BookingSystem.Application.Services;
 using BookingSystem.Domain.Enums;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 
 namespace BookingSystem.API.Controllers;
 
@@ -35,6 +36,13 @@ public class BookingsController : ControllerBase
         return Ok(booking);
     }
 
+    [HttpGet("search")]
+    public async Task<ActionResult<PagedResultDto<BookingDto>>> Search([FromQuery] BookingQueryDto query)
+    {
+        var result = await _bookingService.GetPagedAsync(query);
+        return Ok(result);
+    }
+
     [HttpGet("user/{userId}")]
     public async Task<ActionResult<IEnumerable<BookingDto>>> GetByUserId(Guid userId)
     {
@@ -47,6 +55,13 @@ public class BookingsController : ControllerBase
     {
         var booking = await _bookingService.CreateAsync(createBookingDto);
         return CreatedAtAction(nameof(GetById), new { id = booking.Id }, booking);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<ActionResult<BookingDto>> Update(Guid id, [FromBody] UpdateBookingDto updateBookingDto)
+    {
+        var booking = await _bookingService.UpdateAsync(id, updateBookingDto);
+        return Ok(booking);
     }
 
     [HttpPut("{id}/status")]

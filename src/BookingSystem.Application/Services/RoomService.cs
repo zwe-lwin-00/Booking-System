@@ -26,6 +26,44 @@ public class RoomService : IRoomService
         return rooms.Select(MapToDto);
     }
 
+    public async Task<PagedResultDto<RoomDto>> GetPagedAsync(RoomQueryDto query)
+    {
+        var allRooms = await _roomRepository.GetAllAsync();
+        
+        // Apply filters
+        var filtered = allRooms.AsEnumerable().AsQueryable();
+        
+        if (!string.IsNullOrEmpty(query.RoomType))
+            filtered = filtered.Where(r => r.RoomType.Contains(query.RoomType));
+        
+        if (query.MinPrice.HasValue)
+            filtered = filtered.Where(r => r.PricePerNight >= query.MinPrice.Value);
+        
+        if (query.MaxPrice.HasValue)
+            filtered = filtered.Where(r => r.PricePerNight <= query.MaxPrice.Value);
+        
+        if (query.MinCapacity.HasValue)
+            filtered = filtered.Where(r => r.Capacity >= query.MinCapacity.Value);
+        
+        if (query.IsAvailable.HasValue)
+            filtered = filtered.Where(r => r.IsAvailable == query.IsAvailable.Value);
+        
+        var totalCount = filtered.Count();
+        var items = filtered
+            .Skip((query.PageNumber - 1) * query.PageSize)
+            .Take(query.PageSize)
+            .Select(MapToDto)
+            .ToList();
+        
+        return new PagedResultDto<RoomDto>
+        {
+            Items = items,
+            TotalCount = totalCount,
+            PageNumber = query.PageNumber,
+            PageSize = query.PageSize
+        };
+    }
+
     public async Task<IEnumerable<RoomDto>> GetAvailableRoomsAsync(DateTime checkIn, DateTime checkOut)
     {
         var rooms = await _roomRepository.GetAvailableRoomsAsync(checkIn, checkOut);

@@ -1,3 +1,4 @@
+using BookingSystem.API.Extensions;
 using BookingSystem.API.Middleware;
 using BookingSystem.Application;
 using BookingSystem.Application.Common.Exceptions;
@@ -10,7 +11,18 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerDocumentation();
+
+// Add CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
 
 // Add Application and Infrastructure layers
 builder.Services.AddApplication(builder.Configuration);
@@ -34,6 +46,9 @@ if (app.Environment.IsDevelopment())
 
 // Add exception handling middleware
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+// Enable CORS
+app.UseCors("AllowAll");
 
 app.UseHttpsRedirection();
 app.UseAuthorization();

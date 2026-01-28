@@ -38,6 +38,44 @@ public class BookingService : IBookingService
         return bookings.Select(MapToDto);
     }
 
+    public async Task<PagedResultDto<BookingDto>> GetPagedAsync(BookingQueryDto query)
+    {
+        var allBookings = await _bookingRepository.GetAllAsync();
+        
+        // Apply filters
+        var filtered = allBookings.AsEnumerable().AsQueryable();
+        
+        if (query.UserId.HasValue)
+            filtered = filtered.Where(b => b.UserId == query.UserId.Value);
+        
+        if (query.RoomId.HasValue)
+            filtered = filtered.Where(b => b.RoomId == query.RoomId.Value);
+        
+        if (query.Status.HasValue)
+            filtered = filtered.Where(b => b.Status == query.Status.Value);
+        
+        if (query.CheckInDate.HasValue)
+            filtered = filtered.Where(b => b.CheckInDate >= query.CheckInDate.Value);
+        
+        if (query.CheckOutDate.HasValue)
+            filtered = filtered.Where(b => b.CheckOutDate <= query.CheckOutDate.Value);
+        
+        var totalCount = filtered.Count();
+        var items = filtered
+            .Skip((query.PageNumber - 1) * query.PageSize)
+            .Take(query.PageSize)
+            .Select(MapToDto)
+            .ToList();
+        
+        return new PagedResultDto<BookingDto>
+        {
+            Items = items,
+            TotalCount = totalCount,
+            PageNumber = query.PageNumber,
+            PageSize = query.PageSize
+        };
+    }
+
     public async Task<IEnumerable<BookingDto>> GetByUserIdAsync(Guid userId)
     {
         var bookings = await _bookingRepository.GetByUserIdAsync(userId);
@@ -91,6 +129,48 @@ public class BookingService : IBookingService
 
         var createdBooking = await _bookingRepository.AddAsync(booking);
         return MapToDto(createdBooking);
+    }
+
+    public async Task<BookingDto> UpdateAsync(Guid id, UpdateBookingDto updateBookingDto)
+    {
+        var booking = await _bookingRepository.GetByIdAsync(id);
+        if (booking == null)
+            throw new NotFoundException(nameof(Booking), id);
+
+        // If dates are being updated, check availability
+        if (updateBookingDto.CheckInDate.HasValue || updateBookingDto.CheckOutDate.HasValue)
+        {
+            var checkIn = updateBookingDto.CheckInDate ?? booking.CheckInDate;
+            var checkOut = updateBookingDto.CheckOutDate ?? booking.CheckOutDate;
+            
+            var conflictingBookings = await _bookingRepository.GetByDateRangeAsync(checkIn, checkOut);
+            if (conflictingBookings.Any(b => b.RoomId == booking.RoomId && 
+                                           b.Id != booking.Id && 
+                                           b.Status == BookingStatus.Confirmed))
+            {
+                throw new InvalidOperationException("Room is not available for the selected dates");
+            }
+            
+            booking.CheckInDate = checkIn;
+            booking.CheckOutDate = checkOut;
+            
+            // Recalculate price if dates changed
+            var room = await _roomRepository.GetByIdAsync(booking.RoomId);
+            if (room != null)
+            {
+                var nights = (checkOut - checkIn).Days;
+                booking.TotalPrice = room.PricePerNight * nights;
+            }
+        }
+
+        if (updateBookingDto.NumberOfGuests.HasValue)
+            booking.NumberOfGuests = updateBookingDto.NumberOfGuests.Value;
+
+        if (updateBookingDto.SpecialRequests != null)
+            booking.SpecialRequests = updateBookingDto.SpecialRequests;
+
+        await _bookingRepository.UpdateAsync(booking);
+        return MapToDto(booking);
     }
 
     public async Task<BookingDto> UpdateStatusAsync(Guid id, BookingStatus status)
