@@ -1,0 +1,16 @@
+D:\Project\BookingSystem\src\BookingSystem.Application\obj\Debug\net8.0\BookingSystem.Application.csproj.AssemblyReference.cache
+D:\Project\BookingSystem\src\BookingSystem.Application\obj\Debug\net8.0\BookingSystem.Application.GeneratedMSBuildEditorConfig.editorconfig
+D:\Project\BookingSystem\src\BookingSystem.Application\obj\Debug\net8.0\BookingSystem.Application.AssemblyInfoInputs.cache
+D:\Project\BookingSystem\src\BookingSystem.Application\obj\Debug\net8.0\BookingSystem.Application.AssemblyInfo.cs
+D:\Project\BookingSystem\src\BookingSystem.Application\obj\Debug\net8.0\BookingSystem.Application.csproj.CoreCompileInputs.cache
+D:\Project\BookingSystem\src\BookingSystem.Application\obj\Debug\net8.0\BookingSystem.Application.sourcelink.json
+D:\Project\BookingSystem\src\BookingSystem.Application\bin\Debug\net8.0\BookingSystem.Application.deps.json
+D:\Project\BookingSystem\src\BookingSystem.Application\bin\Debug\net8.0\BookingSystem.Application.dll
+D:\Project\BookingSystem\src\BookingSystem.Application\bin\Debug\net8.0\BookingSystem.Application.pdb
+D:\Project\BookingSystem\src\BookingSystem.Application\bin\Debug\net8.0\BookingSystem.Domain.dll
+D:\Project\BookingSystem\src\BookingSystem.Application\bin\Debug\net8.0\BookingSystem.Domain.pdb
+D:\Project\BookingSystem\src\BookingSystem.Application\obj\Debug\net8.0\BookingS.5EAA46C0.Up2Date
+D:\Project\BookingSystem\src\BookingSystem.Application\obj\Debug\net8.0\BookingSystem.Application.dll
+D:\Project\BookingSystem\src\BookingSystem.Application\obj\Debug\net8.0\refint\BookingSystem.Application.dll
+D:\Project\BookingSystem\src\BookingSystem.Application\obj\Debug\net8.0\BookingSystem.Application.pdb
+D:\Project\BookingSystem\src\BookingSystem.Application\obj\Debug\net8.0\ref\BookingSystem.Application.dll

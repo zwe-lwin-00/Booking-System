@@ -50,7 +50,7 @@ public class BookingService : IBookingService
         var validationResult = await _validator.ValidateAsync(createBookingDto);
         if (!validationResult.IsValid)
         {
-            throw new ValidationException(validationResult.Errors);
+            throw new Common.Exceptions.ValidationException(validationResult.Errors);
         }
 
         // Validate room exists

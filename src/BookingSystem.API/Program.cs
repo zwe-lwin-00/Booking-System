@@ -10,15 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
-    {
-        Title = "Booking System API",
-        Version = "v1",
-        Description = "A clean architecture-based booking system API"
-    });
-});
+builder.Services.AddSwaggerGen();
 
 // Add Application and Infrastructure layers
 builder.Services.AddApplication(builder.Configuration);
