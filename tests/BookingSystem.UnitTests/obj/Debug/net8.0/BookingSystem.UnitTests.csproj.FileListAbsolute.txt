@@ -1,3 +1,5 @@
+D:\Project\BookingSystem\tests\BookingSystem.UnitTests\obj\Debug\net8.0\BookingSystem.UnitTests.csproj.CoreCompileInputs.cache
+D:\Project\BookingSystem\tests\BookingSystem.UnitTests\obj\Debug\net8.0\BookingSystem.UnitTests.pdb
 D:\Project\BookingSystem\tests\BookingSystem.UnitTests\bin\Debug\net8.0\CoverletSourceRootsMapping_BookingSystem.UnitTests
 D:\Project\BookingSystem\tests\BookingSystem.UnitTests\bin\Debug\net8.0\testhost.dll
 D:\Project\BookingSystem\tests\BookingSystem.UnitTests\bin\Debug\net8.0\testhost.exe
@@ -234,11 +236,9 @@ D:\Project\BookingSystem\tests\BookingSystem.UnitTests\obj\Debug\net8.0\BookingS
 D:\Project\BookingSystem\tests\BookingSystem.UnitTests\obj\Debug\net8.0\BookingSystem.UnitTests.GeneratedMSBuildEditorConfig.editorconfig
 D:\Project\BookingSystem\tests\BookingSystem.UnitTests\obj\Debug\net8.0\BookingSystem.UnitTests.AssemblyInfoInputs.cache
 D:\Project\BookingSystem\tests\BookingSystem.UnitTests\obj\Debug\net8.0\BookingSystem.UnitTests.AssemblyInfo.cs
-D:\Project\BookingSystem\tests\BookingSystem.UnitTests\obj\Debug\net8.0\BookingSystem.UnitTests.csproj.CoreCompileInputs.cache
 D:\Project\BookingSystem\tests\BookingSystem.UnitTests\obj\Debug\net8.0\BookingSystem.UnitTests.sourcelink.json
 D:\Project\BookingSystem\tests\BookingSystem.UnitTests\obj\Debug\net8.0\BookingS.A84A682C.Up2Date
 D:\Project\BookingSystem\tests\BookingSystem.UnitTests\obj\Debug\net8.0\BookingSystem.UnitTests.dll
 D:\Project\BookingSystem\tests\BookingSystem.UnitTests\obj\Debug\net8.0\refint\BookingSystem.UnitTests.dll
-D:\Project\BookingSystem\tests\BookingSystem.UnitTests\obj\Debug\net8.0\BookingSystem.UnitTests.pdb
 D:\Project\BookingSystem\tests\BookingSystem.UnitTests\obj\Debug\net8.0\BookingSystem.UnitTests.genruntimeconfig.cache
 D:\Project\BookingSystem\tests\BookingSystem.UnitTests\obj\Debug\net8.0\ref\BookingSystem.UnitTests.dll

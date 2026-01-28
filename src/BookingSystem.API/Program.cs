@@ -50,15 +50,30 @@ if (app.Environment.IsDevelopment())
         
         try
         {
+            // Check if database can connect
+            if (!await context.Database.CanConnectAsync())
+            {
+                logger.LogWarning("Cannot connect to database. Please check your connection string.");
+                throw new InvalidOperationException("Database connection failed. Please check your connection string and ensure SQL Server is running.");
+            }
+
             // Ensure database and tables are created
             var created = await context.Database.EnsureCreatedAsync();
             if (created)
             {
-                logger.LogInformation("Database created successfully.");
+                logger.LogInformation("Database and tables created successfully.");
             }
+            else
+            {
+                logger.LogInformation("Database already exists.");
+            }
+
+            // Wait a moment to ensure tables are fully created
+            await Task.Delay(500);
             
             // Seed initial data if needed
             await DataSeeder.SeedInitialDataAsync(context);
+            logger.LogInformation("Database seeding completed.");
         }
         catch (Exception ex)
         {
