@@ -17,7 +17,7 @@ public static class DependencyInjection
             configuration.GetSection(ValidationSettings.SectionName));
 
         // Register FluentValidation validators
-        services.AddValidatorsFromAssemblyContaining<CreateBookingDtoValidator>();
+        services.AddValidatorsFromAssemblyContaining<RegisterDtoValidator>();
 
         // Register services
         services.AddScoped<IAuthService, AuthService>();

@@ -258,8 +258,6 @@ public class ScheduleService : IScheduleService
             UserName = $"{booking.User.FirstName} {booking.User.LastName}",
             ClassId = booking.ClassId,
             ClassName = booking.Class.Name,
-            RoomId = booking.ClassId, // For backward compatibility
-            RoomNumber = booking.Class.Name, // For backward compatibility
             CheckInDate = booking.Class.StartTime,
             CheckOutDate = booking.Class.EndTime,
             NumberOfGuests = 1,
