@@ -2,15 +2,9 @@ using BookingSystem.API.Extensions;
 using BookingSystem.API.Filters;
 using BookingSystem.API.Middleware;
 using BookingSystem.Application;
-using BookingSystem.Application.Common.Exceptions;
 using BookingSystem.Infrastructure;
 using BookingSystem.Infrastructure.Jobs;
-using BookingSystem.Infrastructure.Persistence;
-using FluentValidation;
 using Hangfire;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,45 +36,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
     
-    // Ensure database is created (for development only)
-    using (var scope = app.Services.CreateScope())
-    {
-        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-        
-        try
-        {
-            // Check if database can connect
-            if (!await context.Database.CanConnectAsync())
-            {
-                logger.LogWarning("Cannot connect to database. Please check your connection string.");
-                throw new InvalidOperationException("Database connection failed. Please check your connection string and ensure SQL Server is running.");
-            }
-
-            // Ensure database and tables are created
-            var created = await context.Database.EnsureCreatedAsync();
-            if (created)
-            {
-                logger.LogInformation("Database and tables created successfully.");
-            }
-            else
-            {
-                logger.LogInformation("Database already exists.");
-            }
-
-            // Wait a moment to ensure tables are fully created
-            await Task.Delay(500);
-            
-            // Seed initial data if needed
-            await DataSeeder.SeedInitialDataAsync(context);
-            logger.LogInformation("Database seeding completed.");
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error initializing database. Please check your connection string and ensure SQL Server is running.");
-            // Don't throw - let the app start and show the error in logs
-        }
-    }
+    // Note: Database setup should be done using SQL scripts in database/ folder
+    // Run: 01_CreateDatabase.sql, 02_CreateTables.sql, 03_SeedReferenceData.sql
 }
 
 // Configure Hangfire
