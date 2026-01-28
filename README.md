@@ -148,11 +148,26 @@ BookingSystem/
 
 ### Database
 
-The database will be automatically created on first run with seed data:
-- Countries: Singapore (SG), Myanmar (MM)
-- Sample packages for each country
+**Setup using SQL Scripts** (Recommended):
 
-For production, use migrations:
+1. Run the database scripts in order:
+   ```bash
+   # 1. Create database
+   sqlcmd -S localhost -i database/01_CreateDatabase.sql
+   
+   # 2. Create tables
+   sqlcmd -S localhost -d BookingSystemDb -i database/02_CreateTables.sql
+   
+   # 3. Seed reference data
+   sqlcmd -S localhost -d BookingSystemDb -i database/03_SeedReferenceData.sql
+   
+   # 4. (Optional) Seed test data
+   sqlcmd -S localhost -d BookingSystemDb -i database/04_SeedTestData.sql
+   ```
+
+2. See `database/README.md` for detailed script documentation.
+
+**Alternative: Entity Framework Migrations** (for development):
 ```bash
 dotnet ef migrations add InitialCreate --project src/BookingSystem.Infrastructure --startup-project src/BookingSystem.API
 dotnet ef database update --project src/BookingSystem.Infrastructure --startup-project src/BookingSystem.API
@@ -259,10 +274,9 @@ dotnet test
 
 ## 📖 Documentation
 
-- **Database Design**: See `DATABASE_DESIGN.md` for complete ERD
-- **Technology Stack**: See `TECHNOLOGY_REQUIREMENTS_VERIFICATION.md` for detailed technology verification
-- **Test Procedures**: See `TEST_PROCEDURE.md` for comprehensive testing guide
+- **Database Design**: See `DATABASE_DESIGN.md` for complete ERD and schema details
 - **API Documentation**: Available at `/swagger` endpoint
+- **Database Scripts**: See `database/README.md` for SQL script documentation
 
 ## 🔄 Mock Services
 
