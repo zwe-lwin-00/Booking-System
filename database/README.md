@@ -1,144 +1,124 @@
 # Database Scripts
 
-This folder contains SQL scripts for database setup, seeding, and maintenance.
+This folder contains consolidated SQL scripts for database setup, testing, and cleanup.
 
 ## Scripts Overview
 
-### 1. `01_CreateDatabase.sql`
-Creates the `BookingSystemDb` database if it doesn't exist.
+### 1. `01_CreateDatabaseAndTables.sql` ⭐ **START HERE**
+**All-in-one database setup script** - Creates database, tables, indexes, and reference data.
+
+**What it does:**
+- Creates `BookingSystemDb` database
+- Creates all 7 tables (Countries, Users, Packages, UserPackages, Classes, Bookings, Waitlists)
+- Creates all performance indexes
+- Seeds reference data:
+  - **Countries**: Singapore (SG), Myanmar (MM)
+  - **Packages**: Basic Package SG, Premium Package SG, Basic Package MM
 
 **Usage:**
-```sql
--- Run in SQL Server Management Studio or sqlcmd
-sqlcmd -S localhost -i 01_CreateDatabase.sql
+```bash
+sqlcmd -S localhost -i database/01_CreateDatabaseAndTables.sql
 ```
 
-### 2. `02_CreateTables.sql`
-Creates all tables, foreign keys, and indexes for the booking system.
+**Or in SQL Server Management Studio:**
+1. Open `01_CreateDatabaseAndTables.sql`
+2. Execute (F5)
 
-**Tables Created:**
-- `Countries` - Country reference data
-- `Users` - User accounts
-- `Packages` - Credit packages available for purchase
-- `UserPackages` - User's purchased packages
-- `Classes` - Fitness class schedules
-- `Bookings` - User class bookings
-- `Waitlists` - Waitlist entries for full classes
+---
 
-**Indexes Created:**
-- Unique indexes on `Countries.Code` and `Users.Email`
-- Performance indexes on foreign keys and frequently queried columns
+### 2. `02_InsertTestData.sql`
+**Test data for development and testing** - Inserts test users, packages, and classes.
 
-**Usage:**
-```sql
-sqlcmd -S localhost -d BookingSystemDb -i 02_CreateTables.sql
-```
-
-### 3. `03_SeedReferenceData.sql`
-Seeds essential reference data required for the system to function.
-
-**Data Seeded:**
-- **Countries**: Singapore (SG), Myanmar (MM)
-- **Packages**: 
-  - Basic Package SG (5 credits, $50)
-  - Premium Package SG (10 credits, $90)
-  - Basic Package MM (5 credits, $30)
-
-**Usage:**
-```sql
-sqlcmd -S localhost -d BookingSystemDb -i 03_SeedReferenceData.sql
-```
-
-### 4. `04_SeedTestData.sql`
-Seeds test data for development and testing purposes.
-
-**Data Seeded:**
-- **Test Users**: 
-  - test.user@example.com (verified)
-  - john.doe@example.com (verified)
-  - jane.smith@example.com (unverified)
-- **Test User Packages**: Sample packages for test user
-- **Test Classes**: 
-  - Upcoming classes for both countries
+**What it does:**
+- Creates test users:
+  - `test.user@example.com` (verified)
+  - `john.doe@example.com` (verified)
+  - `jane.smith@example.com` (unverified)
+- Creates test user packages for test.user@example.com
+- Creates test classes:
+  - Upcoming classes for SG and MM
   - Full class (for waitlist testing)
   - Past class (for waitlist refund testing)
 
 **Usage:**
-```sql
-sqlcmd -S localhost -d BookingSystemDb -i 04_SeedTestData.sql
+```bash
+sqlcmd -S localhost -d BookingSystemDb -i database/02_InsertTestData.sql
 ```
 
-### 5. `05_CleanupDatabase.sql`
-Deletes all data from all tables (keeps schema).
+**Note:** Run this **after** `01_CreateDatabaseAndTables.sql`
 
-**WARNING:** This will delete all data!
+---
+
+### 3. `03_CleanTestData.sql`
+**Clean all data** - Deletes all data from all tables (preserves schema).
+
+**WARNING:** This will delete **ALL** data from the database!
+
+**What it does:**
+- Deletes all records from all tables
+- Preserves schema (tables, indexes, constraints remain)
+- Includes 5-second warning delay
 
 **Usage:**
-```sql
-sqlcmd -S localhost -d BookingSystemDb -i 05_CleanupDatabase.sql
+```bash
+sqlcmd -S localhost -d BookingSystemDb -i database/03_CleanTestData.sql
 ```
 
-### 6. `06_DropDatabase.sql`
-Completely drops the database.
+**Note:** After cleanup, run `01_CreateDatabaseAndTables.sql` again to restore reference data.
 
-**WARNING:** This will permanently delete the entire database!
-
-**Usage:**
-```sql
-sqlcmd -S localhost -i 06_DropDatabase.sql
-```
+---
 
 ## Quick Setup Guide
 
-### Option 1: Full Setup (Recommended for First Time)
+### First Time Setup
 
 ```bash
-# 1. Create database
-sqlcmd -S localhost -i 01_CreateDatabase.sql
+# Step 1: Create database, tables, and reference data
+sqlcmd -S localhost -i database/01_CreateDatabaseAndTables.sql
 
-# 2. Create tables
-sqlcmd -S localhost -d BookingSystemDb -i 02_CreateTables.sql
-
-# 3. Seed reference data
-sqlcmd -S localhost -d BookingSystemDb -i 03_SeedReferenceData.sql
-
-# 4. Seed test data (optional)
-sqlcmd -S localhost -d BookingSystemDb -i 04_SeedTestData.sql
+# Step 2: Insert test data (optional, for development)
+sqlcmd -S localhost -d BookingSystemDb -i database/02_InsertTestData.sql
 ```
 
-### Option 2: Using SQL Server Management Studio (SSMS)
+### Reset Database (Clean and Start Fresh)
+
+```bash
+# Step 1: Clean all data
+sqlcmd -S localhost -d BookingSystemDb -i database/03_CleanTestData.sql
+
+# Step 2: Restore reference data
+sqlcmd -S localhost -d BookingSystemDb -i database/01_CreateDatabaseAndTables.sql
+
+# Step 3: Insert test data (optional)
+sqlcmd -S localhost -d BookingSystemDb -i database/02_InsertTestData.sql
+```
+
+### Using SQL Server Management Studio (SSMS)
 
 1. Open SQL Server Management Studio
 2. Connect to your SQL Server instance
-3. Open each script file in order (01 → 02 → 03 → 04)
-4. Execute each script (F5)
+3. Open `01_CreateDatabaseAndTables.sql` → Execute (F5)
+4. (Optional) Open `02_InsertTestData.sql` → Execute (F5)
 
-### Option 3: Using Azure Data Studio
-
-1. Open Azure Data Studio
-2. Connect to your SQL Server
-3. Open each script file
-4. Run each script
+---
 
 ## Script Execution Order
 
 **For Initial Setup:**
 ```
-01_CreateDatabase.sql
+01_CreateDatabaseAndTables.sql  (creates everything)
   ↓
-02_CreateTables.sql
-  ↓
-03_SeedReferenceData.sql
-  ↓
-04_SeedTestData.sql (optional)
+02_InsertTestData.sql            (optional - adds test data)
 ```
 
 **For Cleanup:**
 ```
-05_CleanupDatabase.sql (deletes data, keeps schema)
-  OR
-06_DropDatabase.sql (deletes everything)
+03_CleanTestData.sql             (deletes all data, keeps schema)
+  ↓
+01_CreateDatabaseAndTables.sql   (restores reference data)
 ```
+
+---
 
 ## Connection String Examples
 
@@ -161,6 +141,8 @@ Server=localhost\INSTANCENAME;Database=BookingSystemDb;Trusted_Connection=true;
 ```
 Server=localhost;Database=BookingSystemDb;User Id=sa;Password=YourPassword;
 ```
+
+---
 
 ## Verification Queries
 
@@ -192,38 +174,50 @@ SELECT COUNT(*) as ClassCount FROM Classes;
 SELECT COUNT(*) as BookingCount FROM Bookings;
 ```
 
+---
+
 ## Troubleshooting
 
 ### Error: "Database already exists"
-- This is normal if database was previously created
-- Script will skip creation and continue
+- ✅ **Normal** - Script will skip creation and continue
+- Database will be used if it already exists
 
 ### Error: "Table already exists"
-- This is normal if tables were previously created
-- Script will skip creation and continue
+- ✅ **Normal** - Script will skip creation and continue
+- Tables will be used if they already exist
+
+### Error: "Column name 'ClassId' does not exist"
+- This happens if existing tables have different schema (e.g., from EF migrations)
+- Script now includes column-existence checks to prevent this error
+- Indexes will only be created if columns exist
 
 ### Error: "Foreign key constraint"
-- Make sure you run scripts in order
+- Make sure you run `01_CreateDatabaseAndTables.sql` first
 - Reference data (Countries) must exist before Packages
-- Users must exist before UserPackages
 
 ### Error: "Invalid object name"
-- Run `02_CreateTables.sql` first
+- Run `01_CreateDatabaseAndTables.sql` first
 - Check that you're connected to the correct database
+
+---
 
 ## Notes
 
-- All scripts are **idempotent** - safe to run multiple times
-- Scripts check for existence before creating/inserting
-- Timestamps use `GETUTCDATE()` for UTC time
-- GUIDs are auto-generated using `NEWID()`
-- Foreign keys use `ON DELETE NO ACTION` to prevent accidental deletions
+- ✅ All scripts are **idempotent** - safe to run multiple times
+- ✅ Scripts check for existence before creating/inserting
+- ✅ Index creation includes column-existence checks for compatibility
+- ✅ Timestamps use `GETUTCDATE()` for UTC time
+- ✅ GUIDs are auto-generated using `NEWID()`
+- ✅ Foreign keys use `ON DELETE NO ACTION` to prevent accidental deletions
+
+---
 
 ## Production Considerations
 
 For production environments:
 1. Use EF Core Migrations instead of these scripts
-2. Remove test data script (`04_SeedTestData.sql`)
+2. Do **NOT** run `02_InsertTestData.sql` in production
 3. Use proper authentication (not Trusted_Connection)
 4. Backup database before running any scripts
 5. Test scripts in staging environment first
+6. Review and customize reference data in `01_CreateDatabaseAndTables.sql`

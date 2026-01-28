@@ -1,10 +1,32 @@
 -- =============================================
--- Create Tables Script
--- Booking System Database Schema
+-- Create Database and Tables Script
+-- Booking System - All-in-One Database Setup
 -- =============================================
+-- This script creates the database, all tables, indexes, and reference data
+-- Run this script to set up a fresh database ready for use
+-- =============================================
+
+-- =============================================
+-- Step 1: Create Database
+-- =============================================
+IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'BookingSystemDb')
+BEGIN
+    CREATE DATABASE [BookingSystemDb]
+    COLLATE SQL_Latin1_General_CP1_CI_AS;
+    PRINT 'Database BookingSystemDb created successfully.';
+END
+ELSE
+BEGIN
+    PRINT 'Database BookingSystemDb already exists.';
+END
+GO
 
 USE [BookingSystemDb];
 GO
+
+-- =============================================
+-- Step 2: Create Tables
+-- =============================================
 
 -- =============================================
 -- Table: Countries
@@ -199,27 +221,30 @@ END
 GO
 
 -- =============================================
--- Create Indexes for Performance
+-- Step 3: Create Indexes for Performance
 -- =============================================
 
--- Indexes for Countries
+-- Indexes for Countries (only if table has expected columns)
 IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_Countries_Code' AND object_id = OBJECT_ID('dbo.Countries'))
+   AND EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = 'Countries' AND COLUMN_NAME = 'Code')
 BEGIN
     CREATE UNIQUE INDEX [IX_Countries_Code] ON [dbo].[Countries]([Code]);
     PRINT 'Index IX_Countries_Code created.';
 END
 GO
 
--- Indexes for Users
+-- Indexes for Users (only if table has expected columns)
 IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_Users_Email' AND object_id = OBJECT_ID('dbo.Users'))
+   AND EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = 'Users' AND COLUMN_NAME = 'Email')
 BEGIN
     CREATE UNIQUE INDEX [IX_Users_Email] ON [dbo].[Users]([Email]);
     PRINT 'Index IX_Users_Email created.';
 END
 GO
 
--- Indexes for Bookings
+-- Indexes for Bookings (only if table has expected columns)
 IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_Bookings_UserId' AND object_id = OBJECT_ID('dbo.Bookings'))
+   AND EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = 'Bookings' AND COLUMN_NAME = 'UserId')
 BEGIN
     CREATE INDEX [IX_Bookings_UserId] ON [dbo].[Bookings]([UserId]);
     PRINT 'Index IX_Bookings_UserId created.';
@@ -227,14 +252,17 @@ END
 GO
 
 IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_Bookings_ClassId' AND object_id = OBJECT_ID('dbo.Bookings'))
+   AND EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = 'Bookings' AND COLUMN_NAME = 'ClassId')
 BEGIN
     CREATE INDEX [IX_Bookings_ClassId] ON [dbo].[Bookings]([ClassId]);
     PRINT 'Index IX_Bookings_ClassId created.';
 END
 GO
 
--- Indexes for Waitlists
+-- Indexes for Waitlists (only if table has expected columns)
 IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_Waitlists_ClassId_Position' AND object_id = OBJECT_ID('dbo.Waitlists'))
+   AND EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = 'Waitlists' AND COLUMN_NAME = 'ClassId')
+   AND EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = 'Waitlists' AND COLUMN_NAME = 'Position')
 BEGIN
     CREATE INDEX [IX_Waitlists_ClassId_Position] ON [dbo].[Waitlists]([ClassId], [Position]);
     PRINT 'Index IX_Waitlists_ClassId_Position created.';
@@ -243,6 +271,7 @@ GO
 
 -- Indexes for UserPackages
 IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_UserPackages_UserId' AND object_id = OBJECT_ID('dbo.UserPackages'))
+   AND EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = 'UserPackages' AND COLUMN_NAME = 'UserId')
 BEGIN
     CREATE INDEX [IX_UserPackages_UserId] ON [dbo].[UserPackages]([UserId]);
     PRINT 'Index IX_UserPackages_UserId created.';
@@ -251,6 +280,7 @@ GO
 
 -- Indexes for Classes
 IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_Classes_CountryId' AND object_id = OBJECT_ID('dbo.Classes'))
+   AND EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = 'Classes' AND COLUMN_NAME = 'CountryId')
 BEGIN
     CREATE INDEX [IX_Classes_CountryId] ON [dbo].[Classes]([CountryId]);
     PRINT 'Index IX_Classes_CountryId created.';
@@ -258,11 +288,64 @@ END
 GO
 
 IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_Classes_StartTime' AND object_id = OBJECT_ID('dbo.Classes'))
+   AND EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = 'Classes' AND COLUMN_NAME = 'StartTime')
 BEGIN
     CREATE INDEX [IX_Classes_StartTime] ON [dbo].[Classes]([StartTime]);
     PRINT 'Index IX_Classes_StartTime created.';
 END
 GO
 
-PRINT 'All tables and indexes created successfully!';
+-- =============================================
+-- Step 4: Seed Reference Data (Essential Data)
+-- =============================================
+
+-- Seed Countries
+IF NOT EXISTS (SELECT 1 FROM [dbo].[Countries])
+BEGIN
+    INSERT INTO [dbo].[Countries] ([Id], [Name], [Code], [CreatedAt])
+    VALUES 
+        (NEWID(), N'Singapore', N'SG', GETUTCDATE()),
+        (NEWID(), N'Myanmar', N'MM', GETUTCDATE());
+    
+    PRINT 'Countries seeded: Singapore (SG), Myanmar (MM)';
+END
+ELSE
+BEGIN
+    PRINT 'Countries already exist. Skipping seed.';
+END
+GO
+
+-- Seed Packages
+IF NOT EXISTS (SELECT 1 FROM [dbo].[Packages])
+BEGIN
+    DECLARE @SingaporeId UNIQUEIDENTIFIER = (SELECT [Id] FROM [dbo].[Countries] WHERE [Code] = 'SG');
+    DECLARE @MyanmarId UNIQUEIDENTIFIER = (SELECT [Id] FROM [dbo].[Countries] WHERE [Code] = 'MM');
+    
+    IF @SingaporeId IS NOT NULL AND @MyanmarId IS NOT NULL
+    BEGIN
+        INSERT INTO [dbo].[Packages] ([Id], [Name], [CountryId], [Credits], [Price], [ExpiryDate], [IsActive], [CreatedAt])
+        VALUES 
+            (NEWID(), N'Basic Package SG', @SingaporeId, 5, 50.00, DATEADD(MONTH, 3, GETUTCDATE()), 1, GETUTCDATE()),
+            (NEWID(), N'Premium Package SG', @SingaporeId, 10, 90.00, DATEADD(MONTH, 6, GETUTCDATE()), 1, GETUTCDATE()),
+            (NEWID(), N'Basic Package MM', @MyanmarId, 5, 30.00, DATEADD(MONTH, 3, GETUTCDATE()), 1, GETUTCDATE());
+        
+        PRINT 'Packages seeded: Basic Package SG, Premium Package SG, Basic Package MM';
+    END
+    ELSE
+    BEGIN
+        PRINT 'ERROR: Countries not found. Cannot seed packages.';
+    END
+END
+ELSE
+BEGIN
+    PRINT 'Packages already exist. Skipping seed.';
+END
+GO
+
+PRINT '=============================================';
+PRINT 'Database setup completed successfully!';
+PRINT 'Database: BookingSystemDb';
+PRINT 'Tables: Countries, Users, Packages, UserPackages, Classes, Bookings, Waitlists';
+PRINT 'Reference Data: Countries (SG, MM) and Packages seeded';
+PRINT '=============================================';
 GO
