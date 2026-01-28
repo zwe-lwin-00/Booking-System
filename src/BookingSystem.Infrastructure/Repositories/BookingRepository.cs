@@ -18,7 +18,10 @@ public class BookingRepository : IBookingRepository
     {
         return await _context.Bookings
             .Include(b => b.User)
-            .Include(b => b.Room)
+            .Include(b => b.Class)
+            .ThenInclude(c => c.Country)
+            .Include(b => b.UserPackage)
+            .ThenInclude(up => up.Package)
             .FirstOrDefaultAsync(b => b.Id == id);
     }
 
@@ -26,7 +29,10 @@ public class BookingRepository : IBookingRepository
     {
         return await _context.Bookings
             .Include(b => b.User)
-            .Include(b => b.Room)
+            .Include(b => b.Class)
+            .ThenInclude(c => c.Country)
+            .Include(b => b.UserPackage)
+            .ThenInclude(up => up.Package)
             .ToListAsync();
     }
 
@@ -34,26 +40,34 @@ public class BookingRepository : IBookingRepository
     {
         return await _context.Bookings
             .Include(b => b.User)
-            .Include(b => b.Room)
+            .Include(b => b.Class)
+            .ThenInclude(c => c.Country)
+            .Include(b => b.UserPackage)
+            .ThenInclude(up => up.Package)
             .Where(b => b.UserId == userId)
+            .OrderByDescending(b => b.CreatedAt)
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Booking>> GetByRoomIdAsync(Guid roomId)
+    public async Task<IEnumerable<Booking>> GetByClassIdAsync(Guid classId)
     {
         return await _context.Bookings
             .Include(b => b.User)
-            .Include(b => b.Room)
-            .Where(b => b.RoomId == roomId)
+            .Include(b => b.Class)
+            .Include(b => b.UserPackage)
+            .Where(b => b.ClassId == classId)
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Booking>> GetByDateRangeAsync(DateTime checkIn, DateTime checkOut)
+    public async Task<IEnumerable<Booking>> GetByUserIdAndTimeRangeAsync(Guid userId, DateTime startTime, DateTime endTime)
     {
         return await _context.Bookings
             .Include(b => b.User)
-            .Include(b => b.Room)
-            .Where(b => (b.CheckInDate <= checkOut && b.CheckOutDate >= checkIn))
+            .Include(b => b.Class)
+            .Include(b => b.UserPackage)
+            .Where(b => b.UserId == userId &&
+                       b.Status != Domain.Enums.BookingStatus.Cancelled &&
+                       ((b.Class.StartTime <= endTime && b.Class.EndTime >= startTime)))
             .ToListAsync();
     }
 

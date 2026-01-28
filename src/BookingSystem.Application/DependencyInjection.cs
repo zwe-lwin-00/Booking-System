@@ -20,8 +20,13 @@ public static class DependencyInjection
         services.AddValidatorsFromAssemblyContaining<CreateBookingDtoValidator>();
 
         // Register services
-        services.AddScoped<IBookingService, BookingService>();
-        services.AddScoped<IRoomService, RoomService>();
+        services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IEmailService, EmailService>();
+        services.AddScoped<IPaymentService, PaymentService>();
+        services.AddScoped<IPackageService, PackageService>();
+        services.AddScoped<IUserPackageService, UserPackageService>();
+        services.AddScoped<IClassService, ClassService>();
+        services.AddScoped<IScheduleService, ScheduleService>();
         services.AddScoped<IUserService, UserService>();
 
         return services;

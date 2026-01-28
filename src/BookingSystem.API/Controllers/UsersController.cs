@@ -1,11 +1,13 @@
 using BookingSystem.Application.DTOs;
 using BookingSystem.Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookingSystem.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class UsersController : ControllerBase
 {
     private readonly IUserService _userService;
@@ -15,51 +17,22 @@ public class UsersController : ControllerBase
         _userService = userService;
     }
 
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<UserDto>>> GetAll()
+    [HttpGet("profile")]
+    public async Task<ActionResult<UserDto>> GetProfile()
     {
-        var users = await _userService.GetAllAsync();
-        return Ok(users);
-    }
-
-    [HttpGet("{id}")]
-    public async Task<ActionResult<UserDto>> GetById(Guid id)
-    {
-        var user = await _userService.GetByIdAsync(id);
+        var userId = Guid.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)!.Value);
+        var user = await _userService.GetByIdAsync(userId);
         if (user == null)
             return NotFound();
 
         return Ok(user);
     }
 
-    [HttpGet("email/{email}")]
-    public async Task<ActionResult<UserDto>> GetByEmail(string email)
+    [HttpPut("profile")]
+    public async Task<ActionResult<UserDto>> UpdateProfile([FromBody] CreateUserDto updateUserDto)
     {
-        var user = await _userService.GetByEmailAsync(email);
-        if (user == null)
-            return NotFound();
-
+        var userId = Guid.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)!.Value);
+        var user = await _userService.UpdateAsync(userId, updateUserDto);
         return Ok(user);
-    }
-
-    [HttpPost]
-    public async Task<ActionResult<UserDto>> Create([FromBody] CreateUserDto createUserDto)
-    {
-        var user = await _userService.CreateAsync(createUserDto);
-        return CreatedAtAction(nameof(GetById), new { id = user.Id }, user);
-    }
-
-    [HttpPut("{id}")]
-    public async Task<ActionResult<UserDto>> Update(Guid id, [FromBody] CreateUserDto updateUserDto)
-    {
-        var user = await _userService.UpdateAsync(id, updateUserDto);
-        return Ok(user);
-    }
-
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(Guid id)
-    {
-        await _userService.DeleteAsync(id);
-        return NoContent();
     }
 }

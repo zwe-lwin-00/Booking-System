@@ -5,15 +5,15 @@ namespace BookingSystem.Domain.Entities;
 public class Booking : BaseEntity
 {
     public Guid UserId { get; set; }
-    public Guid RoomId { get; set; }
-    public DateTime CheckInDate { get; set; }
-    public DateTime CheckOutDate { get; set; }
-    public int NumberOfGuests { get; set; }
-    public decimal TotalPrice { get; set; }
-    public BookingStatus Status { get; set; } = BookingStatus.Pending;
-    public string? SpecialRequests { get; set; }
+    public Guid ClassId { get; set; }
+    public Guid UserPackageId { get; set; }
+    public BookingStatus Status { get; set; } = BookingStatus.Booked;
+    public int CreditsUsed { get; set; }
+    public bool IsCheckedIn { get; set; } = false;
+    public DateTime? CheckInTime { get; set; }
     
     // Navigation properties
     public virtual User User { get; set; } = null!;
-    public virtual Room Room { get; set; } = null!;
+    public virtual Class Class { get; set; } = null!;
+    public virtual UserPackage UserPackage { get; set; } = null!;
 }

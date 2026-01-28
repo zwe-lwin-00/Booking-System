@@ -1,10 +1,16 @@
 using BookingSystem.API.Extensions;
+using BookingSystem.API.Filters;
 using BookingSystem.API.Middleware;
 using BookingSystem.Application;
 using BookingSystem.Application.Common.Exceptions;
 using BookingSystem.Infrastructure;
+using BookingSystem.Infrastructure.Jobs;
 using BookingSystem.Infrastructure.Persistence;
 using FluentValidation;
+using Hangfire;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,8 +47,23 @@ if (app.Environment.IsDevelopment())
     {
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         context.Database.EnsureCreated();
+        
+        // Seed initial data if needed
+        await DataSeeder.SeedInitialDataAsync(context);
     }
 }
+
+// Configure Hangfire
+app.UseHangfireDashboard("/hangfire", new DashboardOptions
+{
+    Authorization = new[] { new HangfireAuthorizationFilter() }
+});
+
+// Schedule waitlist refund job to run every hour
+RecurringJob.AddOrUpdate<WaitlistRefundJob>(
+    "waitlist-refund-job",
+    job => job.ProcessWaitlistRefunds(),
+    Cron.Hourly);
 
 // Add exception handling middleware
 app.UseMiddleware<ExceptionHandlingMiddleware>();
@@ -51,6 +72,7 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseCors("AllowAll");
 
 app.UseHttpsRedirection();
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 

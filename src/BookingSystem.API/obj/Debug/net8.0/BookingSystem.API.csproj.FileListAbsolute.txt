@@ -173,3 +173,5 @@ D:\Project\BookingSystem\src\BookingSystem.API\obj\Debug\net8.0\refint\BookingSy
 D:\Project\BookingSystem\src\BookingSystem.API\obj\Debug\net8.0\BookingSystem.API.pdb
 D:\Project\BookingSystem\src\BookingSystem.API\obj\Debug\net8.0\BookingSystem.API.genruntimeconfig.cache
 D:\Project\BookingSystem\src\BookingSystem.API\obj\Debug\net8.0\ref\BookingSystem.API.dll
+D:\Project\BookingSystem\src\BookingSystem.API\bin\Debug\net8.0\BCrypt.Net-Next.dll
+D:\Project\BookingSystem\src\BookingSystem.API\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
