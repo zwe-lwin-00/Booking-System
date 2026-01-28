@@ -1,28 +1,36 @@
+using BookingSystem.Application.Common.Settings;
 using BookingSystem.Application.DTOs;
 using FluentValidation;
+using Microsoft.Extensions.Options;
 using System.Text.RegularExpressions;
 
 namespace BookingSystem.Application.Validators;
 
 public class CreateUserDtoValidator : AbstractValidator<CreateUserDto>
 {
-    public CreateUserDtoValidator()
+    public CreateUserDtoValidator(IOptions<ValidationSettings> validationSettings)
     {
+        var settings = validationSettings.Value;
+
         RuleFor(x => x.FirstName)
             .NotEmpty().WithMessage("First name is required.")
-            .MaximumLength(100).WithMessage("First name must not exceed 100 characters.");
+            .MaximumLength(settings.FieldLengths.FirstName)
+            .WithMessage($"First name must not exceed {settings.FieldLengths.FirstName} characters.");
 
         RuleFor(x => x.LastName)
             .NotEmpty().WithMessage("Last name is required.")
-            .MaximumLength(100).WithMessage("Last name must not exceed 100 characters.");
+            .MaximumLength(settings.FieldLengths.LastName)
+            .WithMessage($"Last name must not exceed {settings.FieldLengths.LastName} characters.");
 
         RuleFor(x => x.Email)
             .NotEmpty().WithMessage("Email is required.")
             .EmailAddress().WithMessage("Invalid email format.")
-            .MaximumLength(200).WithMessage("Email must not exceed 200 characters.");
+            .MaximumLength(settings.FieldLengths.Email)
+            .WithMessage($"Email must not exceed {settings.FieldLengths.Email} characters.");
 
         RuleFor(x => x.PhoneNumber)
             .NotEmpty().WithMessage("Phone number is required.")
-            .Matches(new Regex(@"^\+?[1-9]\d{1,14}$")).WithMessage("Invalid phone number format.");
+            .Matches(new Regex(settings.PhoneValidation.Pattern))
+            .WithMessage(settings.PhoneValidation.ErrorMessage);
     }
 }
