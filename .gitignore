@@ -6,7 +6,7 @@
 [Ll]og/
 [Ll]ogs/
 
-## Visual Studio cache/options directory
+## Visual Studio
 .vs/
 .vscode/
 *.suo
@@ -14,26 +14,10 @@
 *.userosscache
 *.sln.docstates
 
-## User-specific files
+## User-specific
 *.rsuser
-*.suo
-*.user
-*.userosscache
-*.sln.docstates
 
-## Build results
-[Dd]ebug/
-[Rr]elease/
-[Bb]in/
-[Oo]bj/
-[Ll]og/
-[Ll]ogs/
-
-## MSTest test Results
-[Tt]est[Rr]esult*/
-[Bb]uild[Ll]og.*
-
-## NuGet Packages
+## NuGet
 *.nupkg
 *.snupkg
 **/packages/*
@@ -44,21 +28,13 @@ project.lock.json
 project.fragment.lock.json
 artifacts/
 
-## .NET Core
-project.lock.json
-project.fragment.lock.json
-artifacts/
+## Test results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
 
-## Rider
+## IDE
 .idea/
 *.sln.iml
 
-## VS Code
-.vscode/
-
-## Mac
+## OS
 .DS_Store
-
-## JetBrains Rider
-.idea/
-*.sln.iml
