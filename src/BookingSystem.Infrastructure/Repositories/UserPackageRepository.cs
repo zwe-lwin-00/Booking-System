@@ -2,16 +2,19 @@ using BookingSystem.Domain.Entities;
 using BookingSystem.Domain.Interfaces;
 using BookingSystem.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace BookingSystem.Infrastructure.Repositories;
 
 public class UserPackageRepository : IUserPackageRepository
 {
     private readonly ApplicationDbContext _context;
+    private readonly ILogger<UserPackageRepository> _logger;
 
-    public UserPackageRepository(ApplicationDbContext context)
+    public UserPackageRepository(ApplicationDbContext context, ILogger<UserPackageRepository> logger)
     {
         _context = context;
+        _logger = logger;
     }
 
     public async Task<UserPackage?> GetByIdAsync(Guid id)
@@ -57,6 +60,7 @@ public class UserPackageRepository : IUserPackageRepository
         userPackage.CreatedAt = DateTime.UtcNow;
         await _context.UserPackages.AddAsync(userPackage);
         await _context.SaveChangesAsync();
+        _logger.LogInformation("UserPackage added. UserPackageId: {UserPackageId}, UserId: {UserId}, PackageId: {PackageId}", userPackage.Id, userPackage.UserId, userPackage.PackageId);
         return userPackage;
     }
 
@@ -65,6 +69,7 @@ public class UserPackageRepository : IUserPackageRepository
         userPackage.UpdatedAt = DateTime.UtcNow;
         _context.UserPackages.Update(userPackage);
         await _context.SaveChangesAsync();
+        _logger.LogInformation("UserPackage updated. UserPackageId: {UserPackageId}", userPackage.Id);
     }
 
     public async Task DeleteAsync(Guid id)
@@ -74,6 +79,11 @@ public class UserPackageRepository : IUserPackageRepository
         {
             _context.UserPackages.Remove(userPackage);
             await _context.SaveChangesAsync();
+            _logger.LogInformation("UserPackage deleted. UserPackageId: {UserPackageId}", id);
+        }
+        else
+        {
+            _logger.LogWarning("Delete UserPackage: UserPackageId {UserPackageId} not found", id);
         }
     }
 }

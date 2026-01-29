@@ -2,16 +2,19 @@ using BookingSystem.Domain.Entities;
 using BookingSystem.Domain.Interfaces;
 using BookingSystem.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace BookingSystem.Infrastructure.Repositories;
 
 public class PackageRepository : IPackageRepository
 {
     private readonly ApplicationDbContext _context;
+    private readonly ILogger<PackageRepository> _logger;
 
-    public PackageRepository(ApplicationDbContext context)
+    public PackageRepository(ApplicationDbContext context, ILogger<PackageRepository> logger)
     {
         _context = context;
+        _logger = logger;
     }
 
     public async Task<Package?> GetByIdAsync(Guid id)
@@ -41,6 +44,7 @@ public class PackageRepository : IPackageRepository
         package.CreatedAt = DateTime.UtcNow;
         await _context.Packages.AddAsync(package);
         await _context.SaveChangesAsync();
+        _logger.LogInformation("Package added. PackageId: {PackageId}, Name: {Name}", package.Id, package.Name);
         return package;
     }
 
@@ -49,6 +53,7 @@ public class PackageRepository : IPackageRepository
         package.UpdatedAt = DateTime.UtcNow;
         _context.Packages.Update(package);
         await _context.SaveChangesAsync();
+        _logger.LogInformation("Package updated. PackageId: {PackageId}", package.Id);
     }
 
     public async Task DeleteAsync(Guid id)
@@ -58,6 +63,11 @@ public class PackageRepository : IPackageRepository
         {
             _context.Packages.Remove(package);
             await _context.SaveChangesAsync();
+            _logger.LogInformation("Package deleted. PackageId: {PackageId}", id);
+        }
+        else
+        {
+            _logger.LogWarning("Delete package: package {PackageId} not found", id);
         }
     }
 }

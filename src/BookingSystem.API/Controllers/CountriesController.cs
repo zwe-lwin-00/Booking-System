@@ -10,16 +10,19 @@ namespace BookingSystem.API.Controllers;
 public class CountriesController : ControllerBase
 {
     private readonly ICountryRepository _countryRepository;
+    private readonly ILogger<CountriesController> _logger;
 
-    public CountriesController(ICountryRepository countryRepository)
+    public CountriesController(ICountryRepository countryRepository, ILogger<CountriesController> logger)
     {
         _countryRepository = countryRepository;
+        _logger = logger;
     }
 
     [HttpGet]
     [AllowAnonymous]
     public async Task<ActionResult<IEnumerable<object>>> GetAll()
     {
+        _logger.LogInformation("Get all countries requested");
         var countries = await _countryRepository.GetAllAsync();
         var result = countries.Select(c => new
         {
@@ -35,10 +38,13 @@ public class CountriesController : ControllerBase
     [AllowAnonymous]
     public async Task<ActionResult<object>> GetById(Guid id)
     {
+        _logger.LogInformation("Get country by Id: {CountryId}", id);
         var country = await _countryRepository.GetByIdAsync(id);
         if (country == null)
+        {
+            _logger.LogWarning("Country not found. CountryId: {CountryId}", id);
             return NotFound();
-
+        }
         return Ok(new
         {
             country.Id,

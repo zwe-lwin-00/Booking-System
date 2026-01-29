@@ -2,16 +2,19 @@ using BookingSystem.Domain.Entities;
 using BookingSystem.Domain.Interfaces;
 using BookingSystem.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace BookingSystem.Infrastructure.Repositories;
 
 public class BookingRepository : IBookingRepository
 {
     private readonly ApplicationDbContext _context;
+    private readonly ILogger<BookingRepository> _logger;
 
-    public BookingRepository(ApplicationDbContext context)
+    public BookingRepository(ApplicationDbContext context, ILogger<BookingRepository> logger)
     {
         _context = context;
+        _logger = logger;
     }
 
     public async Task<Booking?> GetByIdAsync(Guid id)
@@ -76,6 +79,7 @@ public class BookingRepository : IBookingRepository
         booking.CreatedAt = DateTime.UtcNow;
         await _context.Bookings.AddAsync(booking);
         await _context.SaveChangesAsync();
+        _logger.LogInformation("Booking added. BookingId: {BookingId}, UserId: {UserId}, ClassId: {ClassId}", booking.Id, booking.UserId, booking.ClassId);
         return booking;
     }
 
@@ -84,6 +88,7 @@ public class BookingRepository : IBookingRepository
         booking.UpdatedAt = DateTime.UtcNow;
         _context.Bookings.Update(booking);
         await _context.SaveChangesAsync();
+        _logger.LogInformation("Booking updated. BookingId: {BookingId}", booking.Id);
     }
 
     public async Task DeleteAsync(Guid id)
@@ -93,6 +98,11 @@ public class BookingRepository : IBookingRepository
         {
             _context.Bookings.Remove(booking);
             await _context.SaveChangesAsync();
+            _logger.LogInformation("Booking deleted. BookingId: {BookingId}", id);
+        }
+        else
+        {
+            _logger.LogWarning("Delete booking: booking {BookingId} not found", id);
         }
     }
 

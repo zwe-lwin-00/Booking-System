@@ -2,16 +2,19 @@ using BookingSystem.Domain.Entities;
 using BookingSystem.Domain.Interfaces;
 using BookingSystem.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace BookingSystem.Infrastructure.Repositories;
 
 public class UserRepository : IUserRepository
 {
     private readonly ApplicationDbContext _context;
+    private readonly ILogger<UserRepository> _logger;
 
-    public UserRepository(ApplicationDbContext context)
+    public UserRepository(ApplicationDbContext context, ILogger<UserRepository> logger)
     {
         _context = context;
+        _logger = logger;
     }
 
     public async Task<User?> GetByIdAsync(Guid id)
@@ -37,6 +40,7 @@ public class UserRepository : IUserRepository
         user.CreatedAt = DateTime.UtcNow;
         await _context.Users.AddAsync(user);
         await _context.SaveChangesAsync();
+        _logger.LogInformation("User added. UserId: {UserId}, Email: {Email}", user.Id, user.Email);
         return user;
     }
 
@@ -45,6 +49,7 @@ public class UserRepository : IUserRepository
         user.UpdatedAt = DateTime.UtcNow;
         _context.Users.Update(user);
         await _context.SaveChangesAsync();
+        _logger.LogInformation("User updated. UserId: {UserId}", user.Id);
     }
 
     public async Task DeleteAsync(Guid id)
@@ -54,6 +59,11 @@ public class UserRepository : IUserRepository
         {
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
+            _logger.LogInformation("User deleted. UserId: {UserId}", id);
+        }
+        else
+        {
+            _logger.LogWarning("Delete user: user {UserId} not found", id);
         }
     }
 

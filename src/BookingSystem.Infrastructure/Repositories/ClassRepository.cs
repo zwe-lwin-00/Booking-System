@@ -2,16 +2,19 @@ using BookingSystem.Domain.Entities;
 using BookingSystem.Domain.Interfaces;
 using BookingSystem.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace BookingSystem.Infrastructure.Repositories;
 
 public class ClassRepository : IClassRepository
 {
     private readonly ApplicationDbContext _context;
+    private readonly ILogger<ClassRepository> _logger;
 
-    public ClassRepository(ApplicationDbContext context)
+    public ClassRepository(ApplicationDbContext context, ILogger<ClassRepository> logger)
     {
         _context = context;
+        _logger = logger;
     }
 
     public async Task<Class?> GetByIdAsync(Guid id)
@@ -50,6 +53,7 @@ public class ClassRepository : IClassRepository
         classEntity.CreatedAt = DateTime.UtcNow;
         await _context.Classes.AddAsync(classEntity);
         await _context.SaveChangesAsync();
+        _logger.LogInformation("Class added. ClassId: {ClassId}, Name: {Name}", classEntity.Id, classEntity.Name);
         return classEntity;
     }
 
@@ -58,6 +62,7 @@ public class ClassRepository : IClassRepository
         classEntity.UpdatedAt = DateTime.UtcNow;
         _context.Classes.Update(classEntity);
         await _context.SaveChangesAsync();
+        _logger.LogInformation("Class updated. ClassId: {ClassId}", classEntity.Id);
     }
 
     public async Task DeleteAsync(Guid id)
@@ -67,6 +72,11 @@ public class ClassRepository : IClassRepository
         {
             _context.Classes.Remove(classEntity);
             await _context.SaveChangesAsync();
+            _logger.LogInformation("Class deleted. ClassId: {ClassId}", id);
+        }
+        else
+        {
+            _logger.LogWarning("Delete class: class {ClassId} not found", id);
         }
     }
 
@@ -77,6 +87,11 @@ public class ClassRepository : IClassRepository
         {
             classEntity.CurrentBookings++;
             await _context.SaveChangesAsync();
+            _logger.LogInformation("Class booking count incremented. ClassId: {ClassId}, CurrentBookings: {Count}", classId, classEntity.CurrentBookings);
+        }
+        else
+        {
+            _logger.LogWarning("Increment booking count: class {ClassId} not found", classId);
         }
     }
 
@@ -87,6 +102,11 @@ public class ClassRepository : IClassRepository
         {
             classEntity.CurrentBookings--;
             await _context.SaveChangesAsync();
+            _logger.LogInformation("Class booking count decremented. ClassId: {ClassId}, CurrentBookings: {Count}", classId, classEntity.CurrentBookings);
+        }
+        else if (classEntity == null)
+        {
+            _logger.LogWarning("Decrement booking count: class {ClassId} not found", classId);
         }
     }
 }

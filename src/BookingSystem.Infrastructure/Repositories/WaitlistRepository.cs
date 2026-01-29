@@ -2,16 +2,19 @@ using BookingSystem.Domain.Entities;
 using BookingSystem.Domain.Interfaces;
 using BookingSystem.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace BookingSystem.Infrastructure.Repositories;
 
 public class WaitlistRepository : IWaitlistRepository
 {
     private readonly ApplicationDbContext _context;
+    private readonly ILogger<WaitlistRepository> _logger;
 
-    public WaitlistRepository(ApplicationDbContext context)
+    public WaitlistRepository(ApplicationDbContext context, ILogger<WaitlistRepository> logger)
     {
         _context = context;
+        _logger = logger;
     }
 
     public async Task<Waitlist?> GetByIdAsync(Guid id)
@@ -61,6 +64,7 @@ public class WaitlistRepository : IWaitlistRepository
         waitlist.CreatedAt = DateTime.UtcNow;
         await _context.Waitlists.AddAsync(waitlist);
         await _context.SaveChangesAsync();
+        _logger.LogInformation("Waitlist entry added. WaitlistId: {WaitlistId}, UserId: {UserId}, ClassId: {ClassId}, Position: {Position}", waitlist.Id, waitlist.UserId, waitlist.ClassId, waitlist.Position);
         return waitlist;
     }
 
@@ -69,6 +73,7 @@ public class WaitlistRepository : IWaitlistRepository
         waitlist.UpdatedAt = DateTime.UtcNow;
         _context.Waitlists.Update(waitlist);
         await _context.SaveChangesAsync();
+        _logger.LogInformation("Waitlist entry updated. WaitlistId: {WaitlistId}", waitlist.Id);
     }
 
     public async Task DeleteAsync(Guid id)
@@ -78,6 +83,11 @@ public class WaitlistRepository : IWaitlistRepository
         {
             _context.Waitlists.Remove(waitlist);
             await _context.SaveChangesAsync();
+            _logger.LogInformation("Waitlist entry deleted. WaitlistId: {WaitlistId}", id);
+        }
+        else
+        {
+            _logger.LogWarning("Delete waitlist: waitlist {WaitlistId} not found", id);
         }
     }
 
